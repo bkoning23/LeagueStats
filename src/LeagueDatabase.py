@@ -1,7 +1,7 @@
 '''
 Created on Mar 19, 2014
 
-@author: Brendan
+@author: Brendan Koning
 '''
 
 import pyodbc
