@@ -83,10 +83,11 @@ def addSummonerHelper(summonerObj, nameId):
         profileIcon = str(summoner['profileIconId'])
         summonerLevel = str(summoner['summonerLevel'])
         modifiedDate = str(summoner['revisionDate']*1000)
+        lastUpdated = time.time()
         conn = pyodbc.connect("Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=C:\\Users\\Brendan\\Dropbox\\LeagueDB\\League.accdb")
         cursor = conn.cursor()
         try:
-            cursor.execute('''INSERT INTO tblSummoners (summonerName, summonerId, profileIcon,summonerLevel, modifiedDate) VALUES (?,?,?,?,?)''', summonerName, ID, profileIcon, summonerLevel, modifiedDate)
+            cursor.execute('''INSERT INTO tblSummoners (summonerName, summonerId, profileIcon,summonerLevel, modifiedDate, lastUpdated) VALUES (?,?,?,?,?,?)''', summonerName, ID, profileIcon, summonerLevel, modifiedDate, lastUpdated)
             try:
                 print("Summoner " + summonerName + " has been added!")
             except(UnicodeEncodeError):
@@ -124,6 +125,19 @@ def getRecentGames(summonerId, isIdBool, addSummonersBool):
     
     if(ID == None):
         return "That summoner name does not exist"
+    
+    conn = pyodbc.connect("Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=C:\\Users\\Brendan\\Dropbox\\LeagueDB\\League.accdb")
+    cursor = conn.cursor()
+    row = cursor.execute("select lastUpdated from tblSummoners where summonerId=?", ID).fetchone()
+    currentTime = time.time() * 1000
+    """24 is HOURS"""
+    timeBetweenUpdates = 3600000 * 24 
+    if(row.lastUpdated + timeBetweenUpdates > currentTime):
+        print("This summoner was updated in the last 24 hours")
+        return (1985)    
+    else:
+        cursor.execute("UPDATE tblSummoners SET lastUpdated=? where summonerId=?", currentTime, ID)
+        conn.commit()
     
     url = 'https://prod.api.pvp.net/api/lol/na/v1.3/game/by-summoner/'+ ID + '/recent?api_key=ec23e4b8-9674-4c38-8904-861ef246aa2b'
     games = requests.get(url).json() 
@@ -287,8 +301,10 @@ def collectAllRecentGames(addSummonersBool):
     count = 0
     for i in range(len(row)):
         Id = (row[i].summonerId)
-        getRecentGames(Id, True, addSummonersBool)
-        if (i % 8 == 0):
+        usedAPI = getRecentGames(Id, True, addSummonersBool)
+        if(usedAPI == 1985):
+            print("NO PAUSE")
+        elif (i % 8 == 0):
             print("10 second pause...")
             time.sleep(10)
         count = count + 1
