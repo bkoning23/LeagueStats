@@ -16,7 +16,7 @@ def addSummonerName(summonerName):
     cursor = conn.cursor()
     row = cursor.execute('SELECT summonerName from tblSummoners WHERE summonerName=?', summonerName).fetchone()
     if(row == None):
-        url='https://prod.api.pvp.net/api/lol/na/v1.3/summoner/by-name/' + summonerName +'?api_key=ec23e4b8-9674-4c38-8904-861ef246aa2b'
+        url='https://prod.api.pvp.net/api/lol/na/v1.4/summoner/by-name/' + summonerName +'?api_key=ec23e4b8-9674-4c38-8904-861ef246aa2b'
         summoner = requests.get(url)
         print("1 call- Summoner Name Request")
         return addSummonerHelper(summoner, summonerName)
@@ -29,7 +29,7 @@ def addSummonerName(summonerName):
 def addSummonerId(summonerId):
     if(type(summonerId) is list):
         summonerIds = ','.join(summonerId)
-        url = 'https://prod.api.pvp.net/api/lol/na/v1.3/summoner/' + summonerIds + '?api_key=ec23e4b8-9674-4c38-8904-861ef246aa2b'
+        url = 'https://prod.api.pvp.net/api/lol/na/v1.4/summoner/' + summonerIds + '?api_key=ec23e4b8-9674-4c38-8904-861ef246aa2b'
         try:
             summoner = requests.get(url).json()
         except(ValueError):
@@ -56,7 +56,7 @@ def addSummonerId(summonerId):
         cursor = conn.cursor()
         row = cursor.execute('SELECT summonerName from tblSummoners WHERE summonerId=?', summonerId).fetchone()
         if(row == None):
-            url = 'https://prod.api.pvp.net/api/lol/na/v1.3/summoner/' + summonerId + '?api_key=ec23e4b8-9674-4c38-8904-861ef246aa2b'
+            url = 'https://prod.api.pvp.net/api/lol/na/v1.4/summoner/' + summonerId + '?api_key=ec23e4b8-9674-4c38-8904-861ef246aa2b'
             summoner = requests.get(url)
             print("1 call- SummonerId Request")
             return addSummonerHelper(summoner, summonerId)
@@ -139,7 +139,7 @@ def getRecentGames(summonerId, isIdBool, addSummonersBool):
         cursor.execute("UPDATE tblSummoners SET lastUpdated=? where summonerId=?", currentTime, ID)
         conn.commit()
     
-    url = 'https://prod.api.pvp.net/api/lol/na/v1.3/game/by-summoner/'+ ID + '/recent?api_key=ec23e4b8-9674-4c38-8904-861ef246aa2b'
+    url = 'https://prod.api.pvp.net/api/lol/na/v1.4/game/by-summoner/'+ ID + '/recent?api_key=ec23e4b8-9674-4c38-8904-861ef246aa2b'
     games = requests.get(url).json() 
     print("1 call- Games Request")  
     games = games['games']
